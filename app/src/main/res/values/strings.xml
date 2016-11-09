@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TODO List</string>
+    <string name="pending">PENDING</string>
+    <string name="done">DONE</string>
+</resources>
