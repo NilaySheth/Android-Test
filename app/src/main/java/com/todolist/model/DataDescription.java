@@ -9,11 +9,16 @@ public class DataDescription {
     private String name;
     @SerializedName("state")
     private int state;
+    private boolean isSelected;
 
-    public DataDescription(int id, String name, int state) {
+    public DataDescription() {
+    }
+
+    public DataDescription(int id, String name, int state, boolean isSelected) {
         this.id = id;
         this.name = name;
         this.state = state;
+        this.isSelected = isSelected;
     }
 
     public int getId() {
@@ -32,12 +37,20 @@ public class DataDescription {
         this.name = name;
     }
 
-    public int isState() {
+    public int getState() {
         return state;
     }
 
     public void setState(int state) {
         this.state = state;
+    }
+
+    public boolean getSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 
 }

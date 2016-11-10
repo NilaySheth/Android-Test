@@ -1,8 +1,9 @@
 package com.todolist.fragments;
 
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,30 +14,39 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Toast;
 
-import com.todolist.ExtraClasses.CommonMethods;
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.todolist.R;
 import com.todolist.adapter.TodoAdapter;
-import com.todolist.model.Data;
+import com.todolist.interfece.CallWebService;
+import com.todolist.interfece.ShowDeleteMenu;
 import com.todolist.model.DataDescription;
 import com.todolist.recycler.DividerItemDecoration;
-import com.todolist.retrofit.ApiClient;
-import com.todolist.retrofit.ApiInterface;
+import com.todolist.sqlite.DbTODOList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+public class PendingFragment extends Fragment implements ShowDeleteMenu {
 
-public class PendingFragment extends Fragment {
-
-    private List<DataDescription> todoList = new ArrayList<>();
+    List<DataDescription> todoList = new ArrayList<>();
     private RecyclerView recyclerView;
     private TodoAdapter mAdapter;
+    private EditText entryInput;
+    private DbTODOList dbTODOList;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private CallWebService callback;
+    private boolean isDeleteMenuShow = false;
 
     public PendingFragment() {
+    }
+
+    public PendingFragment(CallWebService callback) {
+        this.callback = callback;
     }
 
     @Override
@@ -49,70 +59,53 @@ public class PendingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view =  inflater.inflate(R.layout.fragment_pending, container, false);
+        View view = inflater.inflate(R.layout.fragment_pending, container, false);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.pending_recycler);
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
 
-        mAdapter = new TodoAdapter(todoList);
+        dbTODOList = new DbTODOList(getActivity());
+        todoList = dbTODOList.getFilteredTODO(0);
+
+        mAdapter = new TodoAdapter(todoList, this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        if(CommonMethods.isNetworkConnected(getActivity())){
-            getTODOData();
-        }else{
-//            Snackbar snackbar = Snackbar
-//                    .make(coordinatorLayout, "Message is deleted", Snackbar.LENGTH_LONG)
-//                    .setAction("UNDO", new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View view) {
-//                            Snackbar snackbar1 = Snackbar.make(coordinatorLayout, "Message is restored!", Snackbar.LENGTH_SHORT);
-//                            snackbar1.show();
-//                        }
-//                    });
-//
-//            snackbar.show();
-        }
-
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                isDeleteMenuShow = false;
+                getActivity().invalidateOptionsMenu();
+                callback.callService();
+            }
+        });
 
         return view;
     }
 
-    private void getTODOData() {
-        ApiInterface apiService =
-                ApiClient.getClient().create(ApiInterface.class);
-
-        Call<Data> call = apiService.getTODOData();
-        call.enqueue(new Callback<Data>() {
-            @Override
-            public void onResponse(Call<Data> call, Response<Data> response) {
-                int statusCode = response.code();
-                todoList = response.body().getResults();
-                mAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<Data> call, Throwable t) {
-                // Log error here since request failed
-                Log.e("Failed RestClient", t.toString());
-            }
-        });
-    }
-
-    private void addTODOItem(){
-        MaterialDialog dialog = new MaterialDialog.Builder(this)
-                .title(R.string.googleWifi)
-                .customView(R.layout.dialog_customview, true)
-                .positiveText(R.string.connect)
+    private void addTODOItem() {
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
+                .title(R.string.add_todo_string)
+                .customView(R.layout.dialog_add_todo, true)
+                .positiveText(R.string.add_todo_positive)
                 .negativeText(android.R.string.cancel)
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        showToast("Password: " + passwordInput.getText().toString());
+                        Log.i("tag", entryInput.getText().toString());
+                        DataDescription newEntry = new DataDescription(new Random().nextInt(100), entryInput.getText().toString().trim(), 0, false);
+                        dbTODOList.addTODO(newEntry);
+                        todoList.add(newEntry);
+                        mAdapter.notifyDataSetChanged();
                     }
+
                 }).build();
+        entryInput = (EditText) dialog.getCustomView().findViewById(R.id.todoItem);
+        dialog.show();
     }
 
     @Override
@@ -120,9 +113,6 @@ public class PendingFragment extends Fragment {
 
         inflater.inflate(R.menu.menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
-
-        MenuItem deleteMenu = menu.findItem(R.id.delete);
-        deleteMenu.setVisible(false);
     }
 
     @Override
@@ -134,10 +124,38 @@ public class PendingFragment extends Fragment {
                 addTODOItem();
                 return true;
             case R.id.delete:
-
+                ArrayList<DataDescription> tempList = new ArrayList<>(todoList);
+                for (DataDescription data : tempList) {
+                    if (data.getSelected()) {
+                        dbTODOList.deleteTODO(data.getId());
+                        todoList.remove(data);
+                    }
+                }
+                mAdapter.disableCheckBox();
+                isDeleteMenuShow = false;
+                getActivity().invalidateOptionsMenu();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        if(isDeleteMenuShow){
+            menu.findItem(R.id.delete).setVisible(true);
+            menu.findItem(R.id.add).setVisible(false);
+        }else{
+            menu.findItem(R.id.delete).setVisible(false);
+            menu.findItem(R.id.add).setVisible(true);
+        }
+
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void showDeleteMenu() {
+        isDeleteMenuShow = true;
+        getActivity().invalidateOptionsMenu();
     }
 }

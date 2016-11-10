@@ -2,4 +2,12 @@
     <string name="app_name">TODO List</string>
     <string name="pending">PENDING</string>
     <string name="done">DONE</string>
+
+    <string name="add_todo_string">Add a TODO Entry</string>
+    <string name="add_todo_positive">ADD</string>
+
+    <string name="progres_fetch_todo">Fetching TODO Entries</string>
+    <string name="please_wait">Please Wait...</string>
+    <string name="no_internet">No Connection</string>
+    <string name="retry_connection">RETRY</string>
 </resources>
