@@ -44,10 +44,6 @@ public class PendingFragment extends Fragment implements AdapterCallback{
     public PendingFragment() {
     }
 
-//    public PendingFragment(CallWebService callback) {
-//        this.callback = callback;
-//    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

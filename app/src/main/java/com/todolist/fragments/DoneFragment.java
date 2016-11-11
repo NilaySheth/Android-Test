@@ -38,10 +38,6 @@ public class DoneFragment extends Fragment implements AdapterCallback {
     public DoneFragment() {
     }
 
-//    public DoneFragment(CallWebService callback) {
-//        this.callback = callback;
-//    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
