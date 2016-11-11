@@ -12,10 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.todolist.Config.CommonMethods;
 import com.todolist.R;
@@ -41,6 +39,7 @@ public class TODOActivity extends AppCompatActivity implements CallWebService {
     private List<DataDescription> todoList = new ArrayList<>();
     private MaterialDialog progressDialog;
     private CoordinatorLayout coordinatorLayout;
+    private ViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +55,32 @@ public class TODOActivity extends AppCompatActivity implements CallWebService {
     private void setTabbarUI(){
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
+
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (position){
+                    case 0 :
+                        ((PendingFragment)adapter.getItem(position)).updateData();
+                        break;
+                    case 1 :
+                        ((DoneFragment)adapter.getItem(position)).updateData();
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -82,17 +104,9 @@ public class TODOActivity extends AppCompatActivity implements CallWebService {
         }
     }
 
-    private void showIndeterminateProgressDialog() {
-        progressDialog = new MaterialDialog.Builder(this)
-                .title(R.string.progres_fetch_todo)
-                .content(R.string.please_wait)
-                .progress(true, 0)
-                .progressIndeterminateStyle(false)
-                .show();
-    }
-
-    private void hideIndeterminateProgressDialog() {
-        progressDialog.dismiss();
+    @Override
+    public void callService() {
+        fetchAllTODOList();
     }
 
     private void getTODOData() {
@@ -120,16 +134,24 @@ public class TODOActivity extends AppCompatActivity implements CallWebService {
         });
     }
 
+    private void showIndeterminateProgressDialog() {
+        progressDialog = new MaterialDialog.Builder(this)
+                .title(R.string.progres_fetch_todo)
+                .content(R.string.please_wait)
+                .progress(true, 0)
+                .progressIndeterminateStyle(false)
+                .show();
+    }
+
+    private void hideIndeterminateProgressDialog() {
+        progressDialog.dismiss();
+    }
+
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new PendingFragment(this), getString(R.string.pending));
         adapter.addFragment(new DoneFragment(this), getString(R.string.done));
         viewPager.setAdapter(adapter);
-    }
-
-    @Override
-    public void callService() {
-        fetchAllTODOList();
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

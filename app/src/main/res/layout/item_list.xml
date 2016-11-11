@@ -17,7 +17,16 @@
         android:layout_height="wrap_content"
         android:textColor="@color/title"
         android:layout_gravity="center_vertical"
-        android:text="sgsgsdgsgsdg"
         android:textSize="@dimen/item_text_size"/>
+
+    <Button
+        android:id="@+id/cancel_transition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel_transition"
+        android:textColor="@android:color/white"
+        android:layout_marginLeft="20dp"
+        android:background="@color/colorAccent"
+        android:visibility="gone"/>
 
 </LinearLayout>

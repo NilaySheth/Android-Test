@@ -3,6 +3,7 @@ package com.todolist.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,14 +16,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.todolist.R;
 import com.todolist.adapter.TodoAdapter;
+import com.todolist.interfece.AdapterCallback;
 import com.todolist.interfece.CallWebService;
-import com.todolist.interfece.ShowDeleteMenu;
 import com.todolist.model.DataDescription;
 import com.todolist.recycler.DividerItemDecoration;
 import com.todolist.sqlite.DbTODOList;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class PendingFragment extends Fragment implements ShowDeleteMenu {
+public class PendingFragment extends Fragment implements AdapterCallback{
 
     List<DataDescription> todoList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -69,7 +69,7 @@ public class PendingFragment extends Fragment implements ShowDeleteMenu {
         dbTODOList = new DbTODOList(getActivity());
         todoList = dbTODOList.getFilteredTODO(0);
 
-        mAdapter = new TodoAdapter(todoList, this);
+        mAdapter = new TodoAdapter(getActivity(), todoList, this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -84,6 +84,12 @@ public class PendingFragment extends Fragment implements ShowDeleteMenu {
             }
         });
 
+        recyclerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         return view;
     }
 
@@ -157,5 +163,18 @@ public class PendingFragment extends Fragment implements ShowDeleteMenu {
     public void showDeleteMenu() {
         isDeleteMenuShow = true;
         getActivity().invalidateOptionsMenu();
+    }
+
+    @Override
+    public void refreshFragment(){
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(this).attach(this).commit();
+    }
+
+    public void updateData(){
+        dbTODOList = new DbTODOList(getActivity());
+        todoList.clear();
+        todoList.addAll(dbTODOList.getFilteredTODO(0));
+        mAdapter.notifyDataSetChanged();
     }
 }

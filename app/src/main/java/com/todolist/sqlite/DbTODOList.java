@@ -19,7 +19,6 @@ public class DbTODOList {
         this.context = context;
     }
 
-
     public void addTODO(DataDescription dataTodo) {
         dbHelper = new DatabaseHandler(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -29,6 +28,16 @@ public class DbTODOList {
         values.put(CommonStrings.KEY_COL_STATE, dataTodo.getState());
         // Inserting Row
         db.insert(CommonStrings.TABLE_TODO_LIST, null, values);
+        db.close(); // Closing database connection
+    }
+
+    public void updateTODO(int id, int status) {
+        dbHelper = new DatabaseHandler(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(CommonStrings.KEY_COL_STATE, status);
+        // Inserting Row
+        db.update(CommonStrings.TABLE_TODO_LIST, values, CommonStrings.KEY_COL_ID + "=?", new String[]{String.valueOf(id)});
         db.close(); // Closing database connection
     }
 
