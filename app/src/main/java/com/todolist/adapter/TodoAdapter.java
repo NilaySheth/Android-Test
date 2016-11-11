@@ -13,7 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.todolist.R;
-import com.todolist.interfece.AdapterCallback;
+import com.todolist.interfaces.AdapterCallback;
 import com.todolist.model.DataDescription;
 import com.todolist.sqlite.DbTODOList;
 

@@ -1,4 +1,4 @@
-package com.todolist.interfece;
+package com.todolist.interfaces;
 
 public interface AdapterCallback {
     void showDeleteMenu();

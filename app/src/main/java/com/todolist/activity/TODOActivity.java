@@ -19,7 +19,6 @@ import com.todolist.Config.CommonMethods;
 import com.todolist.R;
 import com.todolist.fragments.DoneFragment;
 import com.todolist.fragments.PendingFragment;
-import com.todolist.interfece.CallWebService;
 import com.todolist.model.Data;
 import com.todolist.model.DataDescription;
 import com.todolist.retrofit.ApiClient;
@@ -30,7 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TODOActivity extends AppCompatActivity implements CallWebService {
+public class TODOActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -104,7 +103,6 @@ public class TODOActivity extends AppCompatActivity implements CallWebService {
         }
     }
 
-    @Override
     public void callService() {
         fetchAllTODOList();
     }
@@ -149,8 +147,8 @@ public class TODOActivity extends AppCompatActivity implements CallWebService {
 
     private void setupViewPager(ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new PendingFragment(this), getString(R.string.pending));
-        adapter.addFragment(new DoneFragment(this), getString(R.string.done));
+        adapter.addFragment(new PendingFragment(), getString(R.string.pending));
+        adapter.addFragment(new DoneFragment(), getString(R.string.done));
         viewPager.setAdapter(adapter);
     }
 

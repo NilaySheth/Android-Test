@@ -20,9 +20,9 @@ import android.widget.EditText;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.todolist.R;
+import com.todolist.activity.TODOActivity;
 import com.todolist.adapter.TodoAdapter;
-import com.todolist.interfece.AdapterCallback;
-import com.todolist.interfece.CallWebService;
+import com.todolist.interfaces.AdapterCallback;
 import com.todolist.model.DataDescription;
 import com.todolist.recycler.DividerItemDecoration;
 import com.todolist.sqlite.DbTODOList;
@@ -39,15 +39,14 @@ public class PendingFragment extends Fragment implements AdapterCallback{
     private EditText entryInput;
     private DbTODOList dbTODOList;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private CallWebService callback;
     private boolean isDeleteMenuShow = false;
 
     public PendingFragment() {
     }
 
-    public PendingFragment(CallWebService callback) {
-        this.callback = callback;
-    }
+//    public PendingFragment(CallWebService callback) {
+//        this.callback = callback;
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,7 +79,7 @@ public class PendingFragment extends Fragment implements AdapterCallback{
             public void onRefresh() {
                 isDeleteMenuShow = false;
                 getActivity().invalidateOptionsMenu();
-                callback.callService();
+                ((TODOActivity)getActivity()).callService();
             }
         });
 

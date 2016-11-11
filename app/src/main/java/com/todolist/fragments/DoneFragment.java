@@ -15,9 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.todolist.R;
+import com.todolist.activity.TODOActivity;
 import com.todolist.adapter.TodoAdapter;
-import com.todolist.interfece.AdapterCallback;
-import com.todolist.interfece.CallWebService;
+import com.todolist.interfaces.AdapterCallback;
 import com.todolist.model.DataDescription;
 import com.todolist.recycler.DividerItemDecoration;
 import com.todolist.sqlite.DbTODOList;
@@ -32,15 +32,15 @@ public class DoneFragment extends Fragment implements AdapterCallback {
     private TodoAdapter mAdapter;
     private DbTODOList dbTODOList;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private CallWebService callback;
+//    private CallWebService callback;
     private boolean isDeleteMenuShow = false;
 
     public DoneFragment() {
     }
 
-    public DoneFragment(CallWebService callback) {
-        this.callback = callback;
-    }
+//    public DoneFragment(CallWebService callback) {
+//        this.callback = callback;
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,7 +71,7 @@ public class DoneFragment extends Fragment implements AdapterCallback {
             public void onRefresh() {
                 isDeleteMenuShow = false;
                 getActivity().invalidateOptionsMenu();
-                callback.callService();
+                ((TODOActivity)getActivity()).callService();
             }
         });
 
